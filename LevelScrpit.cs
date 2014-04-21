@@ -5,7 +5,7 @@ public class LevelScrpit : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+	//comentei aqui
 	}
 	
 	// Update is called once per frame
