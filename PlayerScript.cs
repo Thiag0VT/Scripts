@@ -9,6 +9,7 @@ public class PlayerScript : MonoBehaviour {
    
     public float maxHealthValue = 100;
     public float maxShieldValue = 30;
+    public float fatalityRange = 9;
     public float speed = 7;//player speed    
     public float jumpSpeed = 15;//jump velocity
     public float gravity = 30;//player gravity
@@ -30,11 +31,12 @@ public class PlayerScript : MonoBehaviour {
 	public static float specialRangeDamage;//character special range attac damage
 
 
+
 	private CharacterController controller; //controller reference
 	private GameObject[] enemyObj;//enemy objects
 	private Vector2 mousePos;//mouse position
     public Plane groundPlane = new Plane(Vector3.back, Vector3.zero);
-    private States states  =  States.Stand; // to set the machineSates
+    public static States states  =  States.Stand; // to set the machineSates
     private Vector3 targetPosition;
 
 	
@@ -91,6 +93,8 @@ public class PlayerScript : MonoBehaviour {
 			
 			instantiatedProjectile.velocity = launchVelocity;
 		}
+
+
             
 	}
 
@@ -142,15 +146,21 @@ public class PlayerScript : MonoBehaviour {
 	}
 	
 	//fatallity
-	void Fatality(){
-		print("Fatality");
-			enemyObj =  GameObject.FindGameObjectsWithTag("Enemy");
-			foreach(GameObject other in enemyObj)
-			{
-				if(Vector3.Distance(other.transform.position,this.transform.position) < 5){
-					Destroy(other.gameObject);
-				}
-			}	
+	void Fatality()
+    {
+        // store all enemys on scene
+		enemyObj =  GameObject.FindGameObjectsWithTag("Enemy");
+        // Disable all enemy near
+		foreach(GameObject other in enemyObj)
+		{
+            if(Vector3.Distance(other.transform.position,this.transform.position) < fatalityRange)
+            {
+                other.gameObject.SetActive(false);
+    		}
+		
+        }	
+
+        print("Fatality");
 	}
 	
 	//shield control
@@ -209,8 +219,7 @@ public class PlayerScript : MonoBehaviour {
             // if the shield is destroyed the health start subtract
             health -= damageAmount;
         }
-
-      
+           
         // print(health + " " + shield);
     }
 
