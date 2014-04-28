@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-enum States{
+public enum States{
     Stand,
     Death,
     Walk,
@@ -10,10 +10,4 @@ enum States{
 
 
 }
-public class StateMachine
-{
 
-  
-
-  
-}

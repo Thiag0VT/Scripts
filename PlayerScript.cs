@@ -12,6 +12,7 @@ public class PlayerScript : MonoBehaviour {
     public float speed = 7;//player speed    
     public float jumpSpeed = 15;//jump velocity
     public float gravity = 30;//player gravity
+
     public Rigidbody projectile;
     public int projectileSpeed = 20;
 
@@ -32,18 +33,17 @@ public class PlayerScript : MonoBehaviour {
 	private CharacterController controller; //controller reference
 	private GameObject[] enemyObj;//enemy objects
 	private Vector2 mousePos;//mouse position
-
+    public Plane groundPlane = new Plane(Vector3.back, Vector3.zero);
     private States states  =  States.Stand; // to set the machineSates
+    private Vector3 targetPosition;
 
 	
 	
 	#endregion
 
 	//Use this for initialization
-	void Start () {
-
-        // stateMachine
-
+    void Awake () 
+    {
 		this.controller = GetComponent<CharacterController>();
         maxShield = maxShieldValue;
 		shield = maxShield;
@@ -64,26 +64,34 @@ public class PlayerScript : MonoBehaviour {
 		//shoot
 		if(Input.GetMouseButtonDown (0) )
 		{
+
 			Rigidbody instantiatedProjectile  = Instantiate(projectile,canonPos.position, canonPos.rotation)as Rigidbody; 
-			
+
 			// get current distance from camera
 			//float distFromCam = Camera.main.transform.InverseTransformPoint(instantiatedProjectile).z;
-			
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit rayDistance;
+           
+            if (Physics.Raycast(ray, out rayDistance))
+                targetPosition = rayDistance.point;
+
 			// get target in world space, at same distance from camera:
 			Vector3 targetScreenPos = Input.mousePosition;
-			targetScreenPos.z = 10;
-			Vector3 targetPosition = Camera.main.ScreenToWorldPoint(targetScreenPos);
+            // Set z position to 0 
+             targetPosition.z = 0;
+            // Normalize the X Axis to every front
+            if (targetPosition.x < 0)
+                targetPosition.x = -targetPosition.x;
 			
+            //print(targetPosition);
 			// calculate direction & velocity:
-			Vector3 targetDelta = (transform.position - targetPosition);
-			Vector3 launchVelocity = targetDelta.normalized * projectileSpeed;
+			Vector3 targetDelta = targetPosition;
+
+            Vector3 launchVelocity = targetDelta.normalized * projectileSpeed;
 			
 			instantiatedProjectile.velocity = launchVelocity;
 		}
-
-
-		
-
+            
 	}
 
 	//running
@@ -148,7 +156,7 @@ public class PlayerScript : MonoBehaviour {
 	//shield control
 	void ShieldControl()
     {
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetMouseButton (1))
         {
             if ( shield > 0.1f )
             {
@@ -159,16 +167,19 @@ public class PlayerScript : MonoBehaviour {
             {
                 // if the shield is destroyed player status return to normal
                 states = States.Stand;
-              
+                print(states);
             }
         }
         else
         {
-            // print(states);
+            if (states == States.Guard)
+                states = States.Stand;
         }
-		if (shield < maxShield)
+        if (shield < maxShield && states == States.Stand)
         {
-            shield += 0.1f + Time.time ;
+            shield +=  1f * Time.deltaTime;
+
+            print("Shield Value: " + shield);
 
 		}else if(shield > maxShield)
         {
@@ -190,7 +201,7 @@ public class PlayerScript : MonoBehaviour {
     public void TakeDamage(float damageAmount, float shieldDamageAmount)
     {
         // if the shield is active the shield value is subtracted
-        if (states == States.Guard && shield > 0.1f)
+        if (states == States.Guard && shield > 10)
         {
             shield -= shieldDamageAmount;
         }else
@@ -200,7 +211,7 @@ public class PlayerScript : MonoBehaviour {
         }
 
       
-        print(health + " " + shield);
+        // print(health + " " + shield);
     }
 
 	//death

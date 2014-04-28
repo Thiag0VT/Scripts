@@ -29,11 +29,24 @@ public class ProjectileScript : MonoBehaviour {
                 PlayerScript player = col.gameObject.GetComponent<PlayerScript>();
                 // set the damage to player health and shield variable
                 player.TakeDamage(damageAmount, shieldDamageAmount);
+                //Destroy after touch
+                Destroy(this.gameObject);
             }
         }else
         {
-
+            // To send to player the damage hit amount shield and health
+            if (col.CompareTag("Enemy"))
+            {
+                // get the playerscript component
+                EnemyScript enemy = col.gameObject.GetComponent<EnemyScript>();
+                // set the damage to player health and shield variable
+                enemy.TakeDamage(damageAmount, shieldDamageAmount);
+                //Destroy after touch
+                Destroy(this.gameObject);
+            }
         }
+
+
     }
 
 }
