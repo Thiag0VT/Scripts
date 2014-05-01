@@ -211,7 +211,7 @@ public class PlayerScript : MonoBehaviour {
     public void TakeDamage(float damageAmount, float shieldDamageAmount)
     {
         // if the shield is active the shield value is subtracted
-        if (states == States.Guard && shield > 10)
+        if (states == States.Guard && shield > 0.2f)
         {
             shield -= shieldDamageAmount;
         }else
